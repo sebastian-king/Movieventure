@@ -1,0 +1,13 @@
+Options -Indexes
+
+RewriteEngine on
+
+RewriteCond %{HTTPS} !=on
+RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+RewriteCond %{HTTP_HOST} !^$
+RewriteCond %{HTTP_HOST} !^www\. [NC]
+RewriteRule ^ https://www.%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+RewriteCond %{DOCUMENT_ROOT}/$1.php -f
+RewriteRule ^(([^/]+/)*[^.]+)$ /$1.php [L]
