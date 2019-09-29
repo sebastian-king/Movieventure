@@ -33,7 +33,7 @@ if (count($_POST) > 0) {
 			$error = "The passwords you entered do match.";
 			break;
 		} else {
-			$q = $db->query("SELECT * FROM invitation_tokens WHERE `token` = '".$db->real_escape_string($_POST['token'])."' AND used != 1 AND expires > ".time()."");
+			$q = $db->query("SELECT * FROM invitation_tokens WHERE `token` = '".$db->real_escape_string($_POST['token'])."' AND used != 1 AND expires > NOW()");
 			if (!$q->num_rows > 0) {
 				$error = "The token you entered was invalid/expired.";
 				break;
@@ -70,7 +70,7 @@ if (count($_POST) > 0) {
 				$timezone = "UTC";
 			} else {
 				$ipinfo = $ipdb->lookup($_SERVER['REMOTE_ADDR'], \IP2Location\Database::ALL);
-				$tzdb = file_get_contents("http://api.timezonedb.com?key=0EP3FN8GV69Q&lat={$ipinfo['latitude']}&lng={$ipinfo['longitude']}&format=json");
+				$tzdb = file_get_contents("http://api.timezonedb.com?key=" . TIMEZONEDB_API_KEY . "&lat={$ipinfo['latitude']}&lng={$ipinfo['longitude']}&format=json");
 				$timezone = json_decode($tzdb);
 				$timezone = $timezone->zoneName;
 				if (!in_array($timezone, timezone_identifiers_list())) {
@@ -101,10 +101,11 @@ if (count($_POST) > 0) {
 							'".$db->real_escape_string($_POST['email'])."',
 							'".$db->real_escape_string(time())."',
 							'".$db->real_escape_string($ip)."',
-							HEX(AES_ENCRYPT('".uniqid()."','".$db->real_escape_string($_POST['username']).".".$db->real_escape_string($fingerprint)."')),
+							HEX(AES_ENCRYPT('" . uniqid() . "','" . $db->real_escape_string($_POST['username']) . "." . $db->real_escape_string($fingerprint)."')),
 							'$timezone'
 							);
 				") or die($db->error);
+			
 				$db->query("UPDATE invitation_tokens SET used = 1 WHERE token = '".$db->real_escape_string($_POST['token'])."'") or die($db->error);
 				
 				$auth_session_id = obfuscate_hash(sha1($fingerprint . session_id())); // based on IP, time, /dev/urandom and a PHP PRNG (PLCG) and fingerprint calculated above

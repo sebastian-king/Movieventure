@@ -1,33 +1,21 @@
 <?php
-
-// config
-define("BASE", "/var/www/movieventure"); // also defined in .htaccess and accessible via getenv("BASE");
-// ^ no trailing slash
-define("EMAIL_DOMAIN", "example.com");
-define("EMAIL_USER", "support");
-define("EMAIL_NAME", "Movieventure");
-define("DATABASE_HOST", "localhost");
-define("DATABASE_USER", "movieventure");
-define("DATABASE_PASSWORD", "3DRN43qqzyf3exaHnFr7cRrL");
-define("DATABASE_NAME", "movieventure");
-define("DATABASE_CHARSET", "utf8");
+require_once('config.php');
 
 define("SESSION_TIMEOUT", 24 * 60); // 24 minutes in seconds (1440 is PHP timeout)
 
 $base = BASE; // for legacy support
 
-$currentCookieParams = session_get_cookie_params(); 
-
-$rootDomain = '.example.com'; 
+$current_cookie_params = session_get_cookie_params();
 
 session_set_cookie_params( 
     0,
     "/",
-    $rootDomain,
+    COOKIE_ROOT_DOMAIN,
     true,
 	true
 ); 
-session_name("MOVIEVENTURE_PHP_SESSION_ID");
+
+session_name(SESSION_NAME);
 session_start();
 
 $headers  = 'MIME-Version: 1.0' . "\r\n";
@@ -41,7 +29,11 @@ $userinfo = array();
 $db = new mysqli(DATABASE_HOST, DATABASE_USER, DATABASE_PASSWORD, DATABASE_NAME);
 $db->set_charset(DATABASE_CHARSET);
 
-date_default_timezone_set("UTC"); // by default use UTC for internal times
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
+
+date_default_timezone_set('UTC'); // by default use UTC for internal times
 
 $ajax_nav = false;
 if (isset($_GET['ajax_nav'])) {
@@ -99,7 +91,7 @@ function email($to, $subject, $message, $replyto = false, $headers = NULL) {
 	if (!$headers || $headers == NULL) {
 		$headers  = 'MIME-Version: 1.0' . "\r\n";
 		$headers .= 'Content-type: text/html; charset=iso-8859-1' . "\r\n";
-		$headers .= 'From: ' . EMAIL_NAME . ' <no-reply@' . EMAIL_DOMAIN . '.net>' . "\r\n" .
+		$headers .= 'From: ' . EMAIL_NAME . ' <no-reply@' . EMAIL_DOMAIN . '>' . "\r\n" .
 		'Reply-To: ' . $replyto . "\r\n" .
 		'X-Mailer: PHP/' . phpversion();
 	}
