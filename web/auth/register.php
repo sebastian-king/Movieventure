@@ -1,8 +1,8 @@
 <?php
 require("../template/top.php");
-include("$base/template/functions/hash.php");
+include(BASE . "/template/functions/hash.php");
 if (count($_POST) > 0) {
-	require_once("$base/template/functions/IP2Location.php");
+	require_once(BASE . "/template/functions/IP2Location.php");
 	do {
 		// first_name, last_name, username, email, password, password_confirmation, token
 		if (empty($_POST['first_name'])) {
@@ -38,7 +38,8 @@ if (count($_POST) > 0) {
 				$error = "The token you entered was invalid/expired.";
 				break;
 			}
-			$r = $q->fetch_array(MYSQLI_ASSOC);
+			$r = $token = $q->fetch_array(MYSQLI_ASSOC);
+			
 			if ($r['email'] != $_POST['email']) {
 				$error = "Please register using the e-mail address that was invited.";
 				break;
@@ -57,14 +58,16 @@ if (count($_POST) > 0) {
 				$error = "Your username must be alphanumerical and between 3 to 16 characters.";
 				break;
 			}
+			
 			$password = password_hash("{$_POST['password']}", PASSWORD_BCRYPT, array('cost' => 12));
+			
 			$ip = $_SERVER['REMOTE_ADDR'];
 			
 			$ipdb = FALSE;
 			if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
-				$ipdb = new \IP2Location\Database("$base/ip2location/IP2LOCATION-LITE-DB11.BIN", \IP2Location\Database::FILE_IO);
+				$ipdb = new \IP2Location\Database(BASE . "/includes/ip2location/IP2LOCATION-LITE-DB11.BIN", \IP2Location\Database::FILE_IO);
 			} else if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6)) {
-				$ipdb = new \IP2Location\Database("$base/ip2location/IP2LOCATION-LITE-DB11.IPV6.BIN", \IP2Location\Database::FILE_IO);
+				$ipdb = new \IP2Location\Database(BASE . "/includes/ip2location/IP2LOCATION-LITE-DB11.IPV6.BIN", \IP2Location\Database::FILE_IO);
 			}
 			if ($ipdb == FALSE) {
 				$timezone = "UTC";
@@ -78,8 +81,6 @@ if (count($_POST) > 0) {
 				}
 			}
 			
-			$fingerprint = md5($_SERVER['HTTP_USER_AGENT']);
-
 			$q = $db->query("INSERT INTO `users`
 							(`username`,
 							`first_name`,
@@ -87,8 +88,8 @@ if (count($_POST) > 0) {
 							`password`,
 							`token_used`,
 							`email`,
-							`reg_time`,
-							`reg_ip`,
+							`registration_timestamp`,
+							`registration_ip_address`,
 							`passkey`,
 							`timezone`)
 							VALUES
@@ -97,18 +98,18 @@ if (count($_POST) > 0) {
 							'".$db->real_escape_string($_POST['first_name'])."',
 							'".$db->real_escape_string($_POST['last_name'])."',
 							'".$db->real_escape_string($password)."',
-							'".$db->real_escape_string($_POST['token'])."',
+							'".$db->real_escape_string($token['id'])."',
 							'".$db->real_escape_string($_POST['email'])."',
-							'".$db->real_escape_string(time())."',
+							'".$db->real_escape_string(date('Y-m-d H:i:s'))."',
 							'".$db->real_escape_string($ip)."',
-							HEX(AES_ENCRYPT('" . uniqid() . "','" . $db->real_escape_string($_POST['username']) . "." . $db->real_escape_string($fingerprint)."')),
+							HEX(AES_ENCRYPT('" . uniqid() . "','" . $db->real_escape_string($_POST['username']) . "." . $db->real_escape_string(get_fingerprint())."')),
 							'$timezone'
 							);
 				") or die($db->error);
 			
 				$db->query("UPDATE invitation_tokens SET used = 1 WHERE token = '".$db->real_escape_string($_POST['token'])."'") or die($db->error);
 				
-				$auth_session_id = obfuscate_hash(sha1($fingerprint . session_id())); // based on IP, time, /dev/urandom and a PHP PRNG (PLCG) and fingerprint calculated above
+				$auth_session_id = obfuscate_hash(sha1(get_fingerprint() . session_id())); // based on IP, time, /dev/urandom and a PHP PRNG (PLCG) and fingerprint calculated above
 				session_regenerate_id();
 				$auth_session_name = obfuscate_hash(bin2hex(mcrypt_create_iv(32, MCRYPT_DEV_URANDOM))); // just really random
 				
@@ -121,13 +122,13 @@ if (count($_POST) > 0) {
 				VALUES
 				('".$db->real_escape_string($auth_session_id)."',
 				'".$db->real_escape_string($auth_session_name)."',
-				'".$db->real_escape_string($fingerprint)."',
+				'".$db->real_escape_string(get_fingerprint())."',
 				'".$db->real_escape_string($db->insert_id)."',
 				'".$db->real_escape_string(0)."')
 				") or die($db->error); // remove this for security
 				
-				setcookie("MOVIEVENTURE_SESSION_ID", $auth_session_id, 0, '/', "example.com", true, true);
-				setcookie("MOVIEVENTURE_SESSION_NAME", $auth_session_name, 0, '/', "example.com", true, true);
+				setcookie(COOKIE_PREFIX . "_SESSION_ID", $auth_session_id, 0, '/', COOKIE_DOMAIN, true, true);
+				setcookie(COOKIE_PREFIX . "_SESSION_NAME", $auth_session_name, 0, '/', COOKIE_DOMAIN, true, true);
 			
 				header("Location: /");
 				die();

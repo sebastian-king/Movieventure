@@ -13,7 +13,7 @@ session_set_cookie_params(
     COOKIE_ROOT_DOMAIN,
     true,
 	true
-); 
+);
 
 session_name(SESSION_NAME);
 session_start();
@@ -29,7 +29,7 @@ $userinfo = array();
 $db = new mysqli(DATABASE_HOST, DATABASE_USER, DATABASE_PASSWORD, DATABASE_NAME);
 $db->set_charset(DATABASE_CHARSET);
 
-if ($conn->connect_error) {
+if ($db->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
@@ -123,6 +123,10 @@ function auth($auth_level = 1) {
 		}
 	}
 	return false;
+}
+
+function get_fingerprint() {
+	return md5($_SERVER['HTTP_USER_AGENT']);
 }
 
 $timezones = timezone_identifiers_list();
