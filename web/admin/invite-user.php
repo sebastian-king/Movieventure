@@ -3,7 +3,7 @@
 
 (PHP_SAPI !== 'cli' || isset($_SERVER['HTTP_USER_AGENT'])) && die("Sorry, CLI only" . PHP_EOL);
 
-require("/var/www/movieventure/template/top.php");
+require(__DIR__.'../template/top.php');
 
 function random_string($length) {
     $key = '';
@@ -25,7 +25,7 @@ if ($q->num_rows > 0) {
 	die("The email address '{$_GET['email']}' already is assigned to an account" . PHP_EOL);
 }
 
-$q = $db->query("SELECT * FROM invitation_tokens WHERE email = '" . $db->real_escape_string($_GET['email']) . "' AND expires > '" . time() . "' AND used = 0 LIMIT 1") or die($db->error);
+$q = $db->query("SELECT * FROM invitation_tokens WHERE email = '" . $db->real_escape_string($_GET['email']) . "' AND expires > NOW() AND used = 0 LIMIT 1") or die($db->error);
 if ($q->num_rows > 0) {
 	die("The email address '{$_GET['email']}' has already been invited and the token has not expired yet or been used" . PHP_EOL);
 }
@@ -33,8 +33,8 @@ if ($q->num_rows > 0) {
 $token =  random_string(rand(40,60));
 echo "Generated token: $token" . PHP_EOL;
 
-$expires = strtotime("+3 days");
-echo "Token expires (3 days from now): $expires (" . date("l jS \of F Y h:i:s A T", $expires) . ")" . PHP_EOL;
+$expires = date('Y-m-d H:i:s', strtotime('+2 days'));
+echo "Token expires (2 days from now): $expires (" . date("l jS \of F Y h:i:s A T", $expires) . ")" . PHP_EOL;
 
 $q = $db->query("SELECT * FROM invitation_tokens WHERE token = '" . $db->real_escape_string($token) . "';") or die($db->error);
 if ($q->num_rows > 0) {
@@ -54,7 +54,7 @@ $db->query("INSERT INTO `invitation_tokens`
 	'" . $db->real_escape_string($token) . "',
 	'" . $db->real_escape_string($_GET['email']) . "',
 	'" . $db->real_escape_string($expires) . "',
-	'" . time() . "',
+	NOW(),
 	'0'
 	);
 ") or die($db->error());
