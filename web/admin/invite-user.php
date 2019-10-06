@@ -33,7 +33,7 @@ if ($q->num_rows > 0) {
 $token =  random_string(rand(40,60));
 echo "Generated token: $token" . PHP_EOL;
 
-date('Y-m-d H:i:s', strtotime('+2 days'))
+$expires = date('Y-m-d H:i:s', strtotime('+2 days'));
 echo "Token expires (2 days from now): $expires (" . date("l jS \of F Y h:i:s A T", $expires) . ")" . PHP_EOL;
 
 $q = $db->query("SELECT * FROM invitation_tokens WHERE token = '" . $db->real_escape_string($token) . "';") or die($db->error);
