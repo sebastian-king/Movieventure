@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,7 +12,7 @@
 	<!--=================================================-->
 
 	<!--Open Sans Font [ OPTIONAL ] -->
- 	<link href="//fonts.googleapis.com/css?family=Open+Sans:300,400,600,700&amp;subset=latin" rel="stylesheet">
+	<link href="//fonts.googleapis.com/css?family=Open+Sans:300,400,600,700&amp;subset=latin" rel="stylesheet">
 
 
 	<!--Bootstrap Stylesheet [ REQUIRED ]-->
@@ -21,7 +22,7 @@
 	<!--Nifty Stylesheet [ REQUIRED ]-->
 	<link href="/css/nifty.min.css" rel="stylesheet">
 
-	
+
 	<!--Font Awesome [ OPTIONAL ]-->
 	<link href="/assets/font-awesome/css/font-awesome.min.css" rel="stylesheet">
 
@@ -32,10 +33,10 @@
 
 	<!--Bootstrap Select [ OPTIONAL ]-->
 	<link href="/assets/bootstrap-select/bootstrap-select.min.css" rel="stylesheet">
-	
-	<link href="/assets/switchery/switchery.min.css" rel="stylesheet"/>
+
+	<link href="/assets/switchery/switchery.min.css" rel="stylesheet" />
 	<link href="/assets/chosen/chosen.min.css" rel="stylesheet">
-	
+
 	<link href="/css/style.css" rel="stylesheet">
 
 	<!--SCRIPT-->
@@ -44,90 +45,97 @@
 	<!--Page Load Progress Bar [ OPTIONAL ]-->
 	<link href="/assets/pace/pace.min.css" rel="stylesheet">
 	<script src="/assets/pace/pace.min.js"></script>
-	<script>Pace.options.ajax.trackWebSockets = false;</script>
 	<script>
-	(function(funcName, baseObj) {
-		// The public function name defaults to window.docReady
-		// but you can pass in your own object and own function name and those will be used
-		// if you want to put them in a different namespace
-		funcName = funcName || "docReady";
-		baseObj = baseObj || window;
-		var readyList = [];
-		var readyFired = false;
-		var readyEventHandlersInstalled = false;
-
-		// call this when the document is ready
-		// this function protects itself against being called more than once
-		function ready() {
-			if (!readyFired) {
-				// this must be set to true before we start calling callbacks
-				readyFired = true;
-				for (var i = 0; i < readyList.length; i++) {
-					// if a callback here happens to add new ready handlers,
-					// the docReady() function will see that it already fired
-					// and will schedule the callback to run right after
-					// this event loop finishes so all handlers will still execute
-					// in order and no new ones will be added to the readyList
-					// while we are processing the list
-					readyList[i].fn.call(window, readyList[i].ctx);
-				}
-				// allow any closures held by these functions to free
-				readyList = [];
-			}
-		}
-
-		function readyStateChange() {
-			if ( document.readyState === "complete" ) {
-				ready();
-			}
-		}
-
-		// This is the one public interface
-		// docReady(fn, context);
-		// the context argument is optional - if present, it will be passed
-		// as an argument to the callback
-		baseObj[funcName] = function(callback, context) {
-			if (typeof callback !== "function") {
-				throw new TypeError("callback for docReady(fn) must be a function");
-			}
-			// if ready has already fired, then just schedule the callback
-			// to fire asynchronously, but right away
-			if (readyFired) {
-				setTimeout(function() {callback(context);}, 1);
-				return;
-			} else {
-				// add the function and context to the list
-				readyList.push({fn: callback, ctx: context});
-			}
-			// if document already ready to go, schedule the ready function to run
-			if (document.readyState === "complete") {
-				setTimeout(ready, 1);
-			} else if (!readyEventHandlersInstalled) {
-				// otherwise if we don't have event handlers installed, install them
-				if (document.addEventListener) {
-					// first choice is DOMContentLoaded event
-					document.addEventListener("DOMContentLoaded", ready, false);
-					// backup is window load event
-					window.addEventListener("load", ready, false);
-				} else {
-					// must be IE
-					document.attachEvent("onreadystatechange", readyStateChange);
-					window.attachEvent("onload", ready);
-				}
-				readyEventHandlersInstalled = true;
-			}
-		}
-	})("docReady", window);
+		Pace.options.ajax.trackWebSockets = false;
 	</script>
-		
+	<script>
+		(function(funcName, baseObj) {
+			// The public function name defaults to window.docReady
+			// but you can pass in your own object and own function name and those will be used
+			// if you want to put them in a different namespace
+			funcName = funcName || "docReady";
+			baseObj = baseObj || window;
+			var readyList = [];
+			var readyFired = false;
+			var readyEventHandlersInstalled = false;
+
+			// call this when the document is ready
+			// this function protects itself against being called more than once
+			function ready() {
+				if (!readyFired) {
+					// this must be set to true before we start calling callbacks
+					readyFired = true;
+					for (var i = 0; i < readyList.length; i++) {
+						// if a callback here happens to add new ready handlers,
+						// the docReady() function will see that it already fired
+						// and will schedule the callback to run right after
+						// this event loop finishes so all handlers will still execute
+						// in order and no new ones will be added to the readyList
+						// while we are processing the list
+						readyList[i].fn.call(window, readyList[i].ctx);
+					}
+					// allow any closures held by these functions to free
+					readyList = [];
+				}
+			}
+
+			function readyStateChange() {
+				if (document.readyState === "complete") {
+					ready();
+				}
+			}
+
+			// This is the one public interface
+			// docReady(fn, context);
+			// the context argument is optional - if present, it will be passed
+			// as an argument to the callback
+			baseObj[funcName] = function(callback, context) {
+				if (typeof callback !== "function") {
+					throw new TypeError("callback for docReady(fn) must be a function");
+				}
+				// if ready has already fired, then just schedule the callback
+				// to fire asynchronously, but right away
+				if (readyFired) {
+					setTimeout(function() {
+						callback(context);
+					}, 1);
+					return;
+				} else {
+					// add the function and context to the list
+					readyList.push({
+						fn: callback,
+						ctx: context
+					});
+				}
+				// if document already ready to go, schedule the ready function to run
+				if (document.readyState === "complete") {
+					setTimeout(ready, 1);
+				} else if (!readyEventHandlersInstalled) {
+					// otherwise if we don't have event handlers installed, install them
+					if (document.addEventListener) {
+						// first choice is DOMContentLoaded event
+						document.addEventListener("DOMContentLoaded", ready, false);
+						// backup is window load event
+						window.addEventListener("load", ready, false);
+					} else {
+						// must be IE
+						document.attachEvent("onreadystatechange", readyStateChange);
+						window.attachEvent("onload", ready);
+					}
+					readyEventHandlersInstalled = true;
+				}
+			}
+		})("docReady", window);
+	</script>
+
 
 </head>
 
 <div class="overlay">
-  	<div class="text">
+	<div class="text">
 		<div class="a-17"><b>L</b><b>O</b><b>A</b><b>D</b><b>I</b><b>N</b><b>G</b></div>
- 		<div class="delay">
-  			<p>If this takes more than a minute or two, you may check the status of our services <a href="https://status.example.com/">here</a>.</p>
+		<div class="delay">
+			<p>If this takes more than a minute or two, you may check the status of our services <a href="https://status.example.com/">here</a>.</p>
 			<p>Or please e-mail us at <a href="mailto:help@example.com">help@example.com</a> for support.</p>
 		</div>
 	</div>
@@ -135,7 +143,7 @@
 
 <body>
 	<div id="container" class="<?php echo $container_classes; ?>">
-		
+
 		<!--NAVBAR-->
 		<!--===================================================-->
 		<header id="navbar">
@@ -220,7 +228,7 @@
 													</div>
 												</a>
 											</li>
-									
+
 											<!-- Dropdown list-->
 											<li>
 												<a href="#" class="media">
@@ -235,11 +243,11 @@
 													</div>
 												</a>
 											</li>
-									
+
 											<!-- Dropdown list-->
 											<li>
 												<a href="#" class="media">
-											<span class="badge badge-success pull-right">90%</span>
+													<span class="badge badge-success pull-right">90%</span>
 													<div class="media-left">
 														<span class="icon-wrap icon-circle bg-danger">
 															<i class="fa fa-hdd-o fa-lg"></i>
@@ -251,7 +259,7 @@
 													</div>
 												</a>
 											</li>
-									
+
 											<!-- Dropdown list-->
 											<li>
 												<a href="#" class="media">
@@ -266,11 +274,11 @@
 													</div>
 												</a>
 											</li>
-									
+
 											<!-- Dropdown list-->
 											<li>
 												<a href="#" class="media">
-											<span class="label label-danger pull-right">New</span>
+													<span class="label label-danger pull-right">New</span>
 													<div class="media-left">
 														<span class="icon-wrap bg-purple">
 															<i class="fa fa-comment fa-lg"></i>
@@ -282,7 +290,7 @@
 													</div>
 												</a>
 											</li>
-									
+
 											<!-- Dropdown list-->
 											<li>
 												<a href="#" class="media">
@@ -363,8 +371,8 @@
 
 
 							<div class="dropdown-menu dropdown-menu-md dropdown-menu-right with-arrow panel-default">
-                            
-                            	<div class="pad-all bord-btm">
+
+								<div class="pad-all bord-btm">
 									<div class="text-lg text-muted text-thin" style="text-align:center;">Welcome to Movieventure</div>
 								</div>
 
@@ -413,7 +421,7 @@
 			<!--CONTENT CONTAINER-->
 			<!--===================================================-->
 			<div id="content-container">
-				
+
 				<!--Page Title-->
 				<!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
 				<div id="page-title">
@@ -421,14 +429,14 @@
 
 					<!--Searchbox-->
 					<div class="searchbox">
-                    	<form action="/search">
-						<div class="input-group custom-search-form">
-							<input type="text" class="form-control" placeholder="Search..." name="q" id="search-box">
-							<span class="input-group-btn">
-								<button class="text-muted" type="submit"><i class="fa fa-search"></i></button>
-							</span>
-						</div>
-                        </form>
+						<form action="/search">
+							<div class="input-group custom-search-form">
+								<input type="text" class="form-control" placeholder="Search..." name="q" id="search-box">
+								<span class="input-group-btn">
+									<button class="text-muted" type="submit"><i class="fa fa-search"></i></button>
+								</span>
+							</div>
+						</form>
 					</div>
 				</div>
 				<!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
@@ -438,7 +446,7 @@
 				<!--Breadcrumb-->
 				<!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
 				<ol class="breadcrumb">
-                	<?php
+					<?php
 					$i = 0;
 					foreach ($breadcrumbs as $key => $val) {
 						if (++$i === count($breadcrumbs)) {
@@ -446,14 +454,14 @@
 						} else {
 							echo "<li class='active'><a href='{$val}'>{$key}</a></li>";
 						}
-                    }
+					}
 					?>
 				</ol>
 				<!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
 				<!--End breadcrumb-->
 
 
-		
+
 
 				<!--Page content-->
 				<!--===================================================-->

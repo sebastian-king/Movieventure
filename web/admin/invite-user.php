@@ -3,15 +3,16 @@
 
 (PHP_SAPI !== 'cli' || isset($_SERVER['HTTP_USER_AGENT'])) && die("Sorry, CLI only" . PHP_EOL);
 
-require(__DIR__.'../template/top.php');
+require(__DIR__ . '../template/top.php');
 
-function random_string($length) {
-    $key = '';
-    $keys = array_merge(range(0, 9), range('a', 'z'), range('A', 'Z'));
-    for ($i = 0; $i < $length; $i++) {
-        $key .= $keys[array_rand($keys)];
-    }
-    return $key;
+function random_string($length)
+{
+	$key = '';
+	$keys = array_merge(range(0, 9), range('a', 'z'), range('A', 'Z'));
+	for ($i = 0; $i < $length; $i++) {
+		$key .= $keys[array_rand($keys)];
+	}
+	return $key;
 }
 
 parse_str(implode('&', array_slice($argv, 1)), $_GET);
@@ -30,7 +31,7 @@ if ($q->num_rows > 0) {
 	die("The email address '{$_GET['email']}' has already been invited and the token has not expired yet or been used" . PHP_EOL);
 }
 
-$token =  random_string(rand(40,60));
+$token =  random_string(rand(40, 60));
 echo "Generated token: $token" . PHP_EOL;
 
 $expires = date('Y-m-d H:i:s', strtotime('+2 days'));

@@ -1,5 +1,6 @@
 <?php
-class Hashids implements HashidsInterface {
+class Hashids implements HashidsInterface
+{
 	const SEP_DIV = 3.5;
 	const GUARD_DIV = 12;
 	protected $alphabet;
@@ -7,7 +8,8 @@ class Hashids implements HashidsInterface {
 	protected $guards;
 	protected $minHashLength;
 	protected $salt;
-	public function __construct($salt = '', $minHashLength = 0, $alphabet = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890') {
+	public function __construct($salt = '', $minHashLength = 0, $alphabet = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890')
+	{
 		$this->salt = $salt;
 		$this->minHashLength = $minHashLength;
 		$this->alphabet = implode('', array_unique(str_split($alphabet)));
@@ -48,7 +50,8 @@ class Hashids implements HashidsInterface {
 			$this->alphabet = substr($this->alphabet, $guardCount);
 		}
 	}
-	public function encode() {
+	public function encode()
+	{
 		$ret = '';
 		$numbers = func_get_args();
 
@@ -78,7 +81,7 @@ class Hashids implements HashidsInterface {
 
 		$lottery = $ret = $alphabet[$numbersHashInt % strlen($alphabet)];
 		foreach ($numbers as $i => $number) {
-			$alphabet = $this->shuffle($alphabet, substr($lottery.$this->salt.$alphabet, 0, strlen($alphabet)));
+			$alphabet = $this->shuffle($alphabet, substr($lottery . $this->salt . $alphabet, 0, strlen($alphabet)));
 			$ret .= $last = $this->hash($number, $alphabet);
 
 			if ($i + 1 < $numbersSize) {
@@ -92,7 +95,7 @@ class Hashids implements HashidsInterface {
 			$guardIndex = ($numbersHashInt + ord($ret[0])) % strlen($this->guards);
 
 			$guard = $this->guards[$guardIndex];
-			$ret = $guard.$ret;
+			$ret = $guard . $ret;
 
 			if (strlen($ret) < $this->minHashLength) {
 				$guardIndex = ($numbersHashInt + ord($ret[2])) % strlen($this->guards);
@@ -105,7 +108,7 @@ class Hashids implements HashidsInterface {
 		$halfLength = (int) (strlen($alphabet) / 2);
 		while (strlen($ret) < $this->minHashLength) {
 			$alphabet = $this->shuffle($alphabet, $alphabet);
-			$ret = substr($alphabet, $halfLength).$ret.substr($alphabet, 0, $halfLength);
+			$ret = substr($alphabet, $halfLength) . $ret . substr($alphabet, 0, $halfLength);
 
 			$excess = strlen($ret) - $this->minHashLength;
 			if ($excess > 0) {
@@ -115,7 +118,8 @@ class Hashids implements HashidsInterface {
 
 		return $ret;
 	}
-	public function decode($hash) {
+	public function decode($hash)
+	{
 		$ret = [];
 
 		if (!is_string($hash) || !($hash = trim($hash))) {
@@ -141,7 +145,7 @@ class Hashids implements HashidsInterface {
 			$hashArray = explode(' ', $hashBreakdown);
 
 			foreach ($hashArray as $subHash) {
-				$alphabet = $this->shuffle($alphabet, substr($lottery.$this->salt.$alphabet, 0, strlen($alphabet)));
+				$alphabet = $this->shuffle($alphabet, substr($lottery . $this->salt . $alphabet, 0, strlen($alphabet)));
 				$result = $this->unhash($subHash, $alphabet);
 				if (Math::greaterThan($result, PHP_INT_MAX)) {
 					$ret[] = Math::strval($result);
@@ -157,7 +161,8 @@ class Hashids implements HashidsInterface {
 
 		return $ret;
 	}
-	public function encodeHex($str) {
+	public function encodeHex($str)
+	{
 		if (!ctype_xdigit((string) $str)) {
 			return '';
 		}
@@ -166,12 +171,13 @@ class Hashids implements HashidsInterface {
 		$numbers = explode(' ', $numbers);
 
 		foreach ($numbers as $i => $number) {
-			$numbers[$i] = hexdec('1'.$number);
+			$numbers[$i] = hexdec('1' . $number);
 		}
 
 		return call_user_func_array([$this, 'encode'], $numbers);
 	}
-	public function decodeHex($hash) {
+	public function decodeHex($hash)
+	{
 		$ret = '';
 		$numbers = $this->decode($hash);
 
@@ -181,7 +187,8 @@ class Hashids implements HashidsInterface {
 
 		return $ret;
 	}
-	protected function shuffle($alphabet, $salt) {
+	protected function shuffle($alphabet, $salt)
+	{
 		$saltLength = strlen($salt);
 
 		if (!$saltLength) {
@@ -200,19 +207,21 @@ class Hashids implements HashidsInterface {
 
 		return $alphabet;
 	}
-	protected function hash($input, $alphabet) {
+	protected function hash($input, $alphabet)
+	{
 		$hash = '';
 		$alphabetLength = strlen($alphabet);
 
 		do {
-			$hash = $alphabet[Math::intval(Math::mod($input, $alphabetLength))].$hash;
+			$hash = $alphabet[Math::intval(Math::mod($input, $alphabetLength))] . $hash;
 
 			$input = Math::divide($input, $alphabetLength);
 		} while (Math::greaterThan($input, 0));
 
 		return $hash;
 	}
-	protected function unhash($input, $alphabet) {
+	protected function unhash($input, $alphabet)
+	{
 		$number = 0;
 		$inputLength = strlen($input);
 
@@ -231,66 +240,77 @@ class Hashids implements HashidsInterface {
 	}
 }
 //use InvalidArgumentException;
-class HashidsException extends InvalidArgumentException {
+class HashidsException extends InvalidArgumentException
+{
 	//
 }
-interface HashidsInterface {
+interface HashidsInterface
+{
 	public function encode();
 	public function decode($hash);
 	public function encodeHex($str);
 	public function decodeHex($hash);
 }
-class Math {
-	public static function add($a, $b) {
+class Math
+{
+	public static function add($a, $b)
+	{
 		if (function_exists('gmp_add')) {
 			return gmp_add($a, $b);
 		}
 
 		return bcadd($a, $b, 0);
 	}
-	public static function multiply($a, $b) {
+	public static function multiply($a, $b)
+	{
 		if (function_exists('gmp_mul')) {
 			return gmp_mul($a, $b);
 		}
 
 		return bcmul($a, $b, 0);
 	}
-	public static function divide($a, $b) {
+	public static function divide($a, $b)
+	{
 		if (function_exists('gmp_div_q')) {
 			return gmp_div_q($a, $b);
 		}
 
 		return bcdiv($a, $b, 0);
 	}
-	public static function mod($n, $d) {
+	public static function mod($n, $d)
+	{
 		if (function_exists('gmp_mod')) {
 			return gmp_mod($n, $d);
 		}
 
 		return bcmod($n, $d);
 	}
-	public static function greaterThan($a, $b) {
+	public static function greaterThan($a, $b)
+	{
 		if (function_exists('gmp_cmp')) {
 			return gmp_cmp($a, $b) > 0;
 		}
 
 		return bccomp($a, $b, 0) > 0;
 	}
-	public static function intval($a) {
+	public static function intval($a)
+	{
 		if (function_exists('gmp_intval')) {
 			return gmp_intval($a);
 		}
 
 		return intval($a);
 	}
-	public static function strval($a) {
+	public static function strval($a)
+	{
 		if (function_exists('gmp_strval')) {
 			return gmp_strval($a);
 		}
 
 		return $a;
 	}
-	public static function get($a) {
+	public static function get($a)
+	{
 		if (function_exists('gmp_init')) {
 			return gmp_init($a);
 		}
@@ -300,7 +320,8 @@ class Math {
 }
 
 //use Hashids\Hashids;
-function obfuscate_hash($hash) {
+function obfuscate_hash($hash)
+{
 	$hashids = new Hashids('', strlen($hash));
 	return substr($hashids->encodeHex(md5($hash)), 0, strlen($hash));
 }

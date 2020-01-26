@@ -33,23 +33,23 @@ if (count($_POST) > 0) {
 			$error = "The passwords you entered do match.";
 			break;
 		} else {
-			$q = $db->query("SELECT * FROM invitation_tokens WHERE `token` = '".$db->real_escape_string($_POST['token'])."' AND used != 1 AND expires > NOW()");
+			$q = $db->query("SELECT * FROM invitation_tokens WHERE `token` = '" . $db->real_escape_string($_POST['token']) . "' AND used != 1 AND expires > NOW()");
 			if (!$q->num_rows > 0) {
 				$error = "The token you entered was invalid/expired.";
 				break;
 			}
 			$r = $token = $q->fetch_array(MYSQLI_ASSOC);
-			
+
 			if ($r['email'] != $_POST['email']) {
 				$error = "Please register using the e-mail address that was invited.";
 				break;
 			}
-			$q = $db->query("SELECT * FROM users WHERE `username` = '".$db->real_escape_string($_POST['username'])."'");
+			$q = $db->query("SELECT * FROM users WHERE `username` = '" . $db->real_escape_string($_POST['username']) . "'");
 			if ($q->num_rows > 0) {
 				$error = "The username that you entered is already taken.";
 				break;
 			}
-			$q = $db->query("SELECT * FROM users WHERE `email` = '".$db->real_escape_string($_POST['email'])."'");
+			$q = $db->query("SELECT * FROM users WHERE `email` = '" . $db->real_escape_string($_POST['email']) . "'");
 			if ($q->num_rows > 0) {
 				$error = "The email address you entered is already taken.";
 				break;
@@ -58,11 +58,11 @@ if (count($_POST) > 0) {
 				$error = "Your username must be alphanumerical and between 3 to 16 characters.";
 				break;
 			}
-			
+
 			$password = password_hash("{$_POST['password']}", PASSWORD_BCRYPT, array('cost' => 12));
-			
+
 			$ip = $_SERVER['REMOTE_ADDR'];
-			
+
 			$ipdb = FALSE;
 			if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
 				$ipdb = new \IP2Location\Database(BASE . "/includes/ip2location/IP2LOCATION-LITE-DB11.BIN", \IP2Location\Database::FILE_IO);
@@ -80,7 +80,7 @@ if (count($_POST) > 0) {
 					$timezone = "UTC";
 				}
 			}
-			
+
 			$q = $db->query("INSERT INTO `users`
 							(`username`,
 							`first_name`,
@@ -94,61 +94,63 @@ if (count($_POST) > 0) {
 							`timezone`)
 							VALUES
 							(
-							'".$db->real_escape_string($_POST['username'])."',
-							'".$db->real_escape_string($_POST['first_name'])."',
-							'".$db->real_escape_string($_POST['last_name'])."',
-							'".$db->real_escape_string($password)."',
-							'".$db->real_escape_string($token['id'])."',
-							'".$db->real_escape_string($_POST['email'])."',
-							'".$db->real_escape_string(date('Y-m-d H:i:s'))."',
-							'".$db->real_escape_string($ip)."',
-							HEX(AES_ENCRYPT('" . uniqid() . "','" . $db->real_escape_string($_POST['username']) . "." . $db->real_escape_string(get_fingerprint())."')),
+							'" . $db->real_escape_string($_POST['username']) . "',
+							'" . $db->real_escape_string($_POST['first_name']) . "',
+							'" . $db->real_escape_string($_POST['last_name']) . "',
+							'" . $db->real_escape_string($password) . "',
+							'" . $db->real_escape_string($token['id']) . "',
+							'" . $db->real_escape_string($_POST['email']) . "',
+							'" . $db->real_escape_string(date('Y-m-d H:i:s')) . "',
+							'" . $db->real_escape_string($ip) . "',
+							HEX(AES_ENCRYPT('" . uniqid() . "','" . $db->real_escape_string($_POST['username']) . "." . $db->real_escape_string(get_fingerprint()) . "')),
 							'$timezone'
 							);
 				") or die($db->error);
-			
-				$db->query("UPDATE invitation_tokens SET used = 1 WHERE token = '".$db->real_escape_string($_POST['token'])."'") or die($db->error);
-				
-				$auth_session_id = obfuscate_hash(sha1(get_fingerprint() . session_id())); // based on IP, time, /dev/urandom and a PHP PRNG (PLCG) and fingerprint calculated above
-				session_regenerate_id();
-				$auth_session_name = obfuscate_hash(bin2hex(mcrypt_create_iv(32, MCRYPT_DEV_URANDOM))); // just really random
-				
-				$db->query("INSERT INTO auth_sessions
+
+			$db->query("UPDATE invitation_tokens SET used = 1 WHERE token = '" . $db->real_escape_string($_POST['token']) . "'") or die($db->error);
+
+			$auth_session_id = obfuscate_hash(sha1(get_fingerprint() . session_id())); // based on IP, time, /dev/urandom and a PHP PRNG (PLCG) and fingerprint calculated above
+			session_regenerate_id();
+			$auth_session_name = obfuscate_hash(bin2hex(mcrypt_create_iv(32, MCRYPT_DEV_URANDOM))); // just really random
+
+			$db->query("INSERT INTO auth_sessions
 				(session_id,
 				session_name,
 				fingerprint,
 				uid,
 				expires)
 				VALUES
-				('".$db->real_escape_string($auth_session_id)."',
-				'".$db->real_escape_string($auth_session_name)."',
-				'".$db->real_escape_string(get_fingerprint())."',
-				'".$db->real_escape_string($db->insert_id)."',
-				'".$db->real_escape_string(0)."')
+				('" . $db->real_escape_string($auth_session_id) . "',
+				'" . $db->real_escape_string($auth_session_name) . "',
+				'" . $db->real_escape_string(get_fingerprint()) . "',
+				'" . $db->real_escape_string($db->insert_id) . "',
+				'" . $db->real_escape_string(0) . "')
 				") or die($db->error); // remove this for security
-				
-				setcookie(COOKIE_PREFIX . "_SESSION_ID", $auth_session_id, 0, '/', COOKIE_DOMAIN, true, true);
-				setcookie(COOKIE_PREFIX . "_SESSION_NAME", $auth_session_name, 0, '/', COOKIE_DOMAIN, true, true);
-			
-				header("Location: /");
-				die();
+
+			setcookie(COOKIE_PREFIX . "_SESSION_ID", $auth_session_id, 0, '/', COOKIE_DOMAIN, true, true);
+			setcookie(COOKIE_PREFIX . "_SESSION_NAME", $auth_session_name, 0, '/', COOKIE_DOMAIN, true, true);
+
+			header("Location: /");
+			die();
 		}
 	} while (false);
 }
-?><!DOCTYPE html>
+?>
+<!DOCTYPE html>
 <html lang="en">
 
 <head>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>Register | Movieventure</title>
- 	<link href="//fonts.googleapis.com/css?family=Open+Sans:300,400,600,700&amp;subset=latin" rel="stylesheet">
+	<link href="//fonts.googleapis.com/css?family=Open+Sans:300,400,600,700&amp;subset=latin" rel="stylesheet">
 	<link href="/auth/css/bootstrap.min.css" rel="stylesheet">
 	<link href="/auth/css/nifty.min.css" rel="stylesheet">
 	<link href="/auth/css/font-awesome.min.css" rel="stylesheet">
 	<link href="/auth/css/pace.min.css" rel="stylesheet">
 	<script src="/auth/js/pace.min.js"></script>
 </head>
+
 <body>
 	<div id="container" class="cls-container">
 		<div class="cls-header cls-header-lg">
@@ -158,7 +160,7 @@ if (count($_POST) > 0) {
 				</a>
 			</div>
 		</div>
-        <?php if (@$error) {
+		<?php if (@$error) {
 			echo "<center><div class='well well-small' style='width:auto; display:inline-block;'>$error</div></center>";
 		} ?>
 		<div class="cls-content">
@@ -174,8 +176,8 @@ if (count($_POST) > 0) {
 										<input type="text" class="form-control" placeholder="First name" name="first_name" value="<?php echo @$_POST['first_name']; ?>">
 									</div>
 								</div>
-                            </div>
-                            <div class="col-sm-6">
+							</div>
+							<div class="col-sm-6">
 								<div class="form-group">
 									<div class="input-group">
 										<div class="input-group-addon"><i class="fa fa-male"></i></div>
@@ -190,9 +192,9 @@ if (count($_POST) > 0) {
 										<input type="text" class="form-control" placeholder="Username" name="username" value="<?php echo @$_POST['username']; ?>">
 									</div>
 								</div>
-                            </div>
-                            <div class="col-sm-6">
-                            	<div class="form-group">
+							</div>
+							<div class="col-sm-6">
+								<div class="form-group">
 									<div class="input-group">
 										<div class="input-group-addon"><i class="fa fa-envelope"></i></div>
 										<input type="text" class="form-control" placeholder="E-mail" name="email" value="<?php echo @$_POST['email']; ?>">
@@ -207,7 +209,7 @@ if (count($_POST) > 0) {
 									</div>
 								</div>
 							</div>
-                            <div class="col-sm-6">
+							<div class="col-sm-6">
 								<div class="form-group">
 									<div class="input-group">
 										<div class="input-group-addon"><i class="fa fa-asterisk"></i></div>
@@ -215,7 +217,7 @@ if (count($_POST) > 0) {
 									</div>
 								</div>
 							</div>
-                            <div class="col-sm-12">
+							<div class="col-sm-12">
 								<div class="form-group">
 									<div class="input-group">
 										<div class="input-group-addon"><i class="fa fa-ticket"></i></div>
@@ -225,9 +227,9 @@ if (count($_POST) > 0) {
 							</div>
 						</div>
 						<div class="row">
-                            <div class="form-group text-right">
-                                <button class="btn btn-primary text-uppercase" type="submit">Sign Up</button>
-                            </div>
+							<div class="form-group text-right">
+								<button class="btn btn-primary text-uppercase" type="submit">Sign Up</button>
+							</div>
 						</div>
 					</form>
 				</div>
@@ -242,4 +244,5 @@ if (count($_POST) > 0) {
 	<script src="/auth/js/fastclick.min.js"></script>
 	<script src="/auth/js/nifty.min.js"></script>
 </body>
+
 </html>

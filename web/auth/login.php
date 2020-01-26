@@ -10,7 +10,7 @@ if (isset($_POST['username'])) {
 				break 2;
 			}
 		}
-		$q = $db->query("SELECT * FROM `users` WHERE username = '".$db->real_escape_string($_POST['username'])."' LIMIT 1");
+		$q = $db->query("SELECT * FROM `users` WHERE username = '" . $db->real_escape_string($_POST['username']) . "' LIMIT 1");
 		if (!$q->num_rows > 0) {
 			$error = "Incorrect username or password.";
 			break;
@@ -39,20 +39,20 @@ if (isset($_POST['username'])) {
 			expires,
 			session)
 			VALUES
-			('".$db->real_escape_string($auth_session_id)."',
-			'".$db->real_escape_string($auth_session_name)."',
-			'".$db->real_escape_string($fingerprint)."',
-			'".$db->real_escape_string($r['id'])."',
-			'".$db->real_escape_string($expires)."',
-			'".$db->real_escape_string(intval(!@$_POST['remember-me']))."')
+			('" . $db->real_escape_string($auth_session_id) . "',
+			'" . $db->real_escape_string($auth_session_name) . "',
+			'" . $db->real_escape_string($fingerprint) . "',
+			'" . $db->real_escape_string($r['id']) . "',
+			'" . $db->real_escape_string($expires) . "',
+			'" . $db->real_escape_string(intval(!@$_POST['remember-me'])) . "')
 			") or die($db->error); // remove this for security
-			
+
 			setcookie("MOVIEVENTURE_SESSION_ID", $auth_session_id, $expires, '/', "example.com", true, true);
 			setcookie("MOVIEVENTURE_SESSION_NAME", $auth_session_name, $expires, '/', "example.com", true, true);
-			setcookie("mvr", $r['username'], time()*2, '/auth/');
-			
+			setcookie("mvr", $r['username'], time() * 2, '/auth/');
+
 			if (isset($_GET['returnto'])) {
-				header("Location: //{$_SERVER['SERVER_NAME']}/".preg_replace("/^\//i", "", $_GET['returnto']));
+				header("Location: //{$_SERVER['SERVER_NAME']}/" . preg_replace("/^\//i", "", $_GET['returnto']));
 			} else {
 				header("Location: /");
 			}
@@ -60,20 +60,22 @@ if (isset($_POST['username'])) {
 		}
 	} while (false);
 }
-?><!DOCTYPE html>
+?>
+<!DOCTYPE html>
 <html lang="en">
 
 <head>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>Sign in | Movieventure</title>
- 	<link href="//fonts.googleapis.com/css?family=Open+Sans:300,400,600,700&amp;subset=latin" rel="stylesheet">
+	<link href="//fonts.googleapis.com/css?family=Open+Sans:300,400,600,700&amp;subset=latin" rel="stylesheet">
 	<link href="/auth/css/bootstrap.min.css" rel="stylesheet">
 	<link href="/auth/css/nifty.min.css" rel="stylesheet">
 	<link href="/auth/css/font-awesome.min.css" rel="stylesheet">
 	<link href="/auth/css/pace.min.css" rel="stylesheet">
 	<script src="/auth/js/pace.min.js"></script>
 </head>
+
 <body>
 	<div id="container" class="cls-container">
 		<div class="cls-header cls-header-lg">
@@ -83,7 +85,7 @@ if (isset($_POST['username'])) {
 				</a>
 			</div>
 		</div>
-        <?php if (@$error) {
+		<?php if (@$error) {
 			echo "<center><div class='well well-small' style='width:auto; display:inline-block;'>$error</div></center>";
 		} ?>
 		<div class="cls-content">
@@ -106,12 +108,14 @@ if (isset($_POST['username'])) {
 						<div class="row">
 							<div class="col-xs-8 text-left checkbox">
 								<label class="form-checkbox form-icon">
-								<input type="checkbox" name="remember-me" value="1" <?php if (@$_POST['remember-me'] || @$_COOKIE['mvr'] == "true") { echo "checked='checked'"; } ?>> Remember me
+									<input type="checkbox" name="remember-me" value="1" <?php if (@$_POST['remember-me'] || @$_COOKIE['mvr'] == "true") {
+																							echo "checked='checked'";
+																						} ?>> Remember me
 								</label>
 							</div>
 							<div class="col-xs-4">
 								<div class="form-group text-right">
-								<button class="btn btn-primary text-uppercase" type="submit">Sign In</button>
+									<button class="btn btn-primary text-uppercase" type="submit">Sign In</button>
 								</div>
 							</div>
 						</div>
@@ -128,4 +132,5 @@ if (isset($_POST['username'])) {
 	<script src="/auth/js/fastclick.min.js"></script>
 	<script src="/auth/js/nifty.min.js"></script>
 </body>
+
 </html>

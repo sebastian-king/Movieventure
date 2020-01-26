@@ -23,7 +23,7 @@ exports.serialize = function (mixed_value) {
     ktype = '',
     vals = '',
     count = 0,
-    _utf8Size = function(str) {
+    _utf8Size = function (str) {
       var size = 0,
         i = 0,
         l = str.length,
@@ -40,7 +40,7 @@ exports.serialize = function (mixed_value) {
       }
       return size;
     };
-  _getType = function(inp) {
+  _getType = function (inp) {
     var match, key, cons, types, type = typeof inp;
 
     if (type === 'object' && !inp) {
@@ -109,7 +109,7 @@ exports.serialize = function (mixed_value) {
       val += ':' + count + ':{' + vals + '}';
       break;
     case 'undefined':
-      // Fall-through
+    // Fall-through
     default:
       // if the JS object has a property which contains a null value, the string cannot be unserialized by PHP
       val = 'N';

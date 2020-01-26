@@ -1,9 +1,10 @@
 <?php
 
-function find_a_movie($imdbid, $title, $release_year) {
-		//$imdbid = $_GET['imdbid'];
-		//$title = $_GET['title'];
-		//$release_year = $_GET['year'];
+function find_a_movie($imdbid, $title, $release_year)
+{
+	//$imdbid = $_GET['imdbid'];
+	//$title = $_GET['title'];
+	//$release_year = $_GET['year'];
 
 	$categories = array();
 	$categories[] = 207; // HD Movies
@@ -20,25 +21,27 @@ function find_a_movie($imdbid, $title, $release_year) {
 		}
 	}
 
-	function convert_to_bytes(string $from) {
+	function convert_to_bytes(string $from)
+	{
 		$units = ['B', 'KiB', 'MiB', 'GiB', 'TiB', 'PiB'];
 		$number = substr($from, 0, -3);
 		$suffix = substr($from, -3);
 
 		//B or no suffix
-		if(is_numeric(substr($suffix, 0, 1))) {
+		if (is_numeric(substr($suffix, 0, 1))) {
 			return preg_replace('/[^\d]/', '', $from);
 		}
 
 		$exponent = array_flip($units)[$suffix] ?? null;
-		if($exponent === null) {
+		if ($exponent === null) {
 			return null;
 		}
 
 		return $number * (1024 ** $exponent); // 1000 for iba, 1024 ibi
 	}
 
-	function search_source($query, $category = NULL) {
+	function search_source($query, $category = NULL)
+	{
 		if (is_null($category)) {
 			global $categories;
 			$category = $categories[0];
@@ -55,12 +58,13 @@ function find_a_movie($imdbid, $title, $release_year) {
 			$i++;
 		}
 		if ($i > 10) {
-			die(json_encode(array('error'=>2))); // strlen failed
+			die(json_encode(array('error' => 2))); // strlen failed
 		}
 		return $search_results;
 	}
 
-	function parse_results($results, $query) {
+	function parse_results($results, $query)
+	{
 		global $year;
 
 		$anonymous_uploader = false;
@@ -78,7 +82,7 @@ function find_a_movie($imdbid, $title, $release_year) {
 				//die(json_encode(array('error'=>3))); // no hits
 			}
 		}
-		
+
 		$return = array();
 		$i = 0;
 		foreach ($m[0] as $key => $title) {
@@ -148,7 +152,8 @@ function find_a_movie($imdbid, $title, $release_year) {
 		return $return;
 	}
 
-	function sort_meta($a, $b) {
+	function sort_meta($a, $b)
+	{
 		$a_quality = $a['quality'];
 		$b_quality = $b['quality'];
 
@@ -158,7 +163,8 @@ function find_a_movie($imdbid, $title, $release_year) {
 		return ($a_quality < $b_quality) ? 1 : -1;
 	}
 
-	function meta_quality($result) {
+	function meta_quality($result)
+	{
 		$quality = 0;
 		if (preg_match("@\sbrrip\s@i", $result['title'])) {
 			$quality += 1;
@@ -203,7 +209,7 @@ function find_a_movie($imdbid, $title, $release_year) {
 		} else {
 			$quality -= 0.25;
 		}
-		
+
 		if ($result['anonymous']) {
 			$quality -= 0.5;
 		}
@@ -211,11 +217,12 @@ function find_a_movie($imdbid, $title, $release_year) {
 		return $quality;
 	}
 
-	function sort_results_by_quality($results, $search_query) {
+	function sort_results_by_quality($results, $search_query)
+	{
 		// how to use: date, comments?
 		// are more comments indicative of a more active, better items? or a bad one with complaints
 		// date: not too recent, not yet vetted
-			// not too old, might be dead
+		// not too old, might be dead
 
 		$sorted = array();
 		$sorted[0] = array();
@@ -229,8 +236,10 @@ function find_a_movie($imdbid, $title, $release_year) {
 			// usually year gos after the title
 			// sort out whitespace and delimiters
 			$sanitized_title = str_replace(':', '.?', $search_query['title']);
-			if (preg_match("@{$sanitized_title}.*{$search_query['year']}@i",
-				$val['name'])) { // title and year
+			if (preg_match(
+				"@{$sanitized_title}.*{$search_query['year']}@i",
+				$val['name']
+			)) { // title and year
 
 				//echo "MATCHED:" . $val['name'] . PHP_EOL;
 
@@ -249,17 +258,16 @@ function find_a_movie($imdbid, $title, $release_year) {
 					}
 				} else {
 					if ($val['badge'] == 'VIP') {
-							$sorted[3][] = $val;
+						$sorted[3][] = $val;
 					} else if ($val['badge'] == 'Trusted') {
-							$sorted[4][] = $val;
+						$sorted[4][] = $val;
 					} else {
-							$sorted[5][] = $val;
+						$sorted[5][] = $val;
 					}
 				}
 			} else {
 				// discard, doesn't match title & year
 			}
-
 		}
 		usort($sorted[0], 'sort_meta');
 		usort($sorted[1], 'sort_meta');
@@ -271,23 +279,23 @@ function find_a_movie($imdbid, $title, $release_year) {
 		return $sorted;
 
 		// 1: correct title, year, imdbid & VIP badge
-			// quality:
-				// brrip
-				// dvdrip
-				// webrip
-				// exclude CAM
-				// exclude TS
-			// best seed:leech ratio
-			// best filesize to time ratio
+		// quality:
+		// brrip
+		// dvdrip
+		// webrip
+		// exclude CAM
+		// exclude TS
+		// best seed:leech ratio
+		// best filesize to time ratio
 		// 2: correct title, year, imdbid & Trusted badge
-			// quality:
-				// ...
-			// best seed:leech ratio
-			// best filesize to time ratioo
+		// quality:
+		// ...
+		// best seed:leech ratio
+		// best filesize to time ratioo
 		// 3: correect title, year, imdbid, no badge
-			// same again
+		// same again
 		// 4: correct title, year only (id_search false)
-			// same again
+		// same again
 		// ignore any other results
 	}
 
@@ -302,7 +310,7 @@ function find_a_movie($imdbid, $title, $release_year) {
 	//echo '<pre>Merged array has: ' . count($results) . ' entries' . PHP_EOL;
 
 	//foreach ($results as $key => $val) {
-		//echo $val['name'] . PHP_EOL;
+	//echo $val['name'] . PHP_EOL;
 	//}
 
 	$keyed_query = array('title' => $title, 'year' => $release_year, 'imdbid' => $imdbid);
@@ -317,5 +325,4 @@ function find_a_movie($imdbid, $title, $release_year) {
 		    echo '<meta http-equiv="refresh" content="10;" />';
 	}
 	*/
-
 }
