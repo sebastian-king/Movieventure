@@ -126,7 +126,7 @@ print $log "${CONF_PREFIX}_ENCODE_STOPPING_ITEM ${output}\n";
 my @files_found;
 find(sub { -f and push @files_found, $File::Find::name } , $INPUT_DIR);
 
-@files_found = grep (/\.(mp4|m4v|mkv|avi)$/, @files_found);
+@files_found = grep (/\.(mp4|m4v|mkv|avi|ts)$/, @files_found);
 @files_found = nsort(@files_found); # nsort tries to list the files in a human-sensible way
 
 if (scalar @files_found eq 0) {
