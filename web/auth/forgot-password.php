@@ -1,5 +1,10 @@
 <?php
 require("../template/top.php");
+require_once __DIR__ . '/../lib/config.php';
+
+$APP_NAME   = config('app.name',   'Movieventure');
+$APP_DOMAIN = config('app.domain', 'example.com');
+
 if (isset($_POST['email'])) {
 	do {
 		if (!isset($_POST["email"]) || !strlen($_POST["email"]) > 0) {
@@ -23,11 +28,14 @@ if (isset($_POST['email'])) {
 			mysql_query("INSERT INTO lostpass (iid, timereset, ip, hostname, user, email) VALUES('$iid','$time','$ip','$host','{$r['username']}','{$r['email']}')") or die(mysql_error());
 			$headers  = 'MIME-Version: 1.0' . "\r\n";
 			$headers .= 'Content-type: text/html; charset=iso-8859-1' . "\r\n";
-			$headers .= 'From: Movieventure <no-reply@example.com>' . "\r\n" .
-			'Reply-To: no-reply@example.com' . "\r\n" .
+			$headers .= "From: $APP_NAME <no-reply@$APP_DOMAIN>" . "\r\n" .
+			"Reply-To: no-reply@$APP_DOMAIN" . "\r\n" .
 			'X-Mailer: PHP/' . phpversion();
-				
-			if (email($r['email'], "Movieventure password reset", "<html>Hello {$r['username']}, <br><br>Your password was requested to be reset from $host ($ip)<br>on {$timeInD},<br>here is your reset link:<br><a href=\"https://www.example.com/auth/reset-password?token=$iid\">https://www.example.com/auth/reset-password?token=$iid</a><br><br>Best regards,<br>Movieventure</body></html>")) {
+
+			$reset_link = "https://www.$APP_DOMAIN/auth/reset-password?token=$iid";
+			$body = "<html>Hello {$r['username']}, <br><br>Your password was requested to be reset from $host ($ip)<br>on {$timeInD},<br>here is your reset link:<br><a href=\"$reset_link\">$reset_link</a><br><br>Best regards,<br>$APP_NAME</body></html>";
+
+			if (email($r['email'], "$APP_NAME password reset", $body)) {
 				$success = "Recovery instructions have been sent to your e-mail address.";
 			} else {
 				$success = "Unable to send e-mail, please contact support.";

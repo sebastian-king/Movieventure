@@ -1,5 +1,6 @@
 <?php
 require("../template/top.php");
+require_once __DIR__ . '/../lib/config.php';
 include("$base/template/functions/hash.php");
 if (isset($_POST['username'])) {
 	do {
@@ -47,8 +48,8 @@ if (isset($_POST['username'])) {
 			'" . $db->real_escape_string(intval(!@$_POST['remember-me'])) . "')
 			") or die($db->error); // remove this for security
 
-			setcookie("MOVIEVENTURE_SESSION_ID", $auth_session_id, $expires, '/', "example.com", true, true);
-			setcookie("MOVIEVENTURE_SESSION_NAME", $auth_session_name, $expires, '/', "example.com", true, true);
+			setcookie("MOVIEVENTURE_SESSION_ID", $auth_session_id, $expires, '/', config('app.domain', 'example.com'), true, true);
+			setcookie("MOVIEVENTURE_SESSION_NAME", $auth_session_name, $expires, '/', config('app.domain', 'example.com'), true, true);
 			setcookie("mvr", $r['username'], time() * 2, '/auth/');
 
 			if (isset($_GET['returnto'])) {

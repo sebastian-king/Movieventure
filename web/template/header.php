@@ -135,8 +135,8 @@
 	<div class="text">
 		<div class="a-17"><b>L</b><b>O</b><b>A</b><b>D</b><b>I</b><b>N</b><b>G</b></div>
 		<div class="delay">
-			<p>If this takes more than a minute or two, you may check the status of our services <a href="https://status.example.com/">here</a>.</p>
-			<p>Or please e-mail us at <a href="mailto:help@example.com">help@example.com</a> for support.</p>
+			<p>If this takes more than a minute or two, you may check the status of our services <a href="https://status.<?php echo COOKIE_ROOT_DOMAIN; ?>/">here</a>.</p>
+			<p>Or please e-mail us at <a href="mailto:help@<?php echo COOKIE_ROOT_DOMAIN; ?>">help@<?php echo COOKIE_ROOT_DOMAIN; ?></a> for support.</p>
 		</div>
 	</div>
 </div>

@@ -233,8 +233,8 @@
 		<p>You may also try refreshing the page by <a href="javascript:history.go(0);">clicking here</a>.</p>\
 		<div class="delay">\
 			<hr>\
-			<p style="font-style: italic;">If this takes more than a minute or two, you may check the status of our services <a href="https://status.example.com/" target="_blank">here</a>.</p>\
-			<p style="font-style: italic;">Or please e-mail us at <a href="mailto:help@example.com">help@example.com</a> for support.</p>\
+			<p style="font-style: italic;">If this takes more than a minute or two, you may check the status of our services <a href="https://status.<?php echo COOKIE_ROOT_DOMAIN; ?>/" target="_blank">here</a>.</p>\
+			<p style="font-style: italic;">Or please e-mail us at <a href="mailto:help@<?php echo COOKIE_ROOT_DOMAIN; ?>">help@<?php echo COOKIE_ROOT_DOMAIN; ?></a> for support.</p>\
 		</div>\
 	</div>').css({
 						'background-image': 'none',

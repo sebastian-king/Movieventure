@@ -4,8 +4,11 @@
 <script language="javascript" type="text/javascript">
   <?php
   // be careful when using an IP with SSL certificates
+  require_once __DIR__ . '/../lib/config.php';
+  $ws_domain = config('app.domain', 'example.com');
+  $ws_port   = config('websocket.port', 18888);
   ?>
-  var wsUri = "wss://www.example.com:18888";
+  var wsUri = "wss://www.<?php echo htmlspecialchars($ws_domain); ?>:<?php echo (int)$ws_port; ?>";
   var output;
 
   function init() {

@@ -1,8 +1,10 @@
 <?php
 require("../template/top.php");
+require_once __DIR__ . '/../lib/config.php';
 if (isset($_COOKIE["MOVIEVENTURE_SESSION_ID"]) || isset($_COOKIE['MOVIEVENTURE_SESSION_NAME'])) {
-	setcookie("MOVIEVENTURE_SESSION_ID", false, 1, '/', "example.com", true, true);
-	setcookie("MOVIEVENTURE_SESSION_NAME", false, 1, '/', "example.com", true, true);
+	$cookie_domain = config('app.domain', 'example.com');
+	setcookie("MOVIEVENTURE_SESSION_ID", false, 1, '/', $cookie_domain, true, true);
+	setcookie("MOVIEVENTURE_SESSION_NAME", false, 1, '/', $cookie_domain, true, true);
 
 	$db->query("DELETE FROM auth_sessions WHERE session_id = '" . $db->real_escape_string($_COOKIE['MOVIEVENTURE_SESSION_ID']) . "' OR session_name = '" . $db->real_escape_string($_COOKIE['MOVIEVENTURE_SESSION_NAME']) . "' LIMIT 1");
 }

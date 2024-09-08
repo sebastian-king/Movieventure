@@ -4,6 +4,10 @@
 (PHP_SAPI !== 'cli' || isset($_SERVER['HTTP_USER_AGENT'])) && die("Sorry, CLI only" . PHP_EOL);
 
 require(__DIR__ . '../template/top.php');
+require_once __DIR__ . '/../lib/config.php';
+
+$APP_NAME   = config('app.name',   'Movieventure');
+$APP_DOMAIN = config('app.domain', 'example.com');
 
 function random_string($length)
 {
@@ -60,7 +64,11 @@ $db->query("INSERT INTO `invitation_tokens`
 	);
 ") or die($db->error());
 
-if (email($_GET['email'], "You have been invited to Movieventure", "Hello" . (isset($_GET['name']) ? " {$_GET['name']}" : "") . ", <br>You have been invited to join <a href='https://www.example.com'>example.com</a>, a private & secretive movie streaming portal. To register please follow this link:<br><a href='https://www.example.com/auth/register/token/$token'>https://www.example.com/auth/register/token/$token</a><br>This invitation will expire in 3 days.<br><br>Kindest regards,<br>The Movieventure Team")) {
+$subject = "You have been invited to $APP_NAME";
+$greeting = "Hello" . (isset($_GET['name']) ? " {$_GET['name']}" : "");
+$body = "$greeting, <br>You have been invited to join <a href='https://www.$APP_DOMAIN'>$APP_DOMAIN</a>, an invite-only streaming platform. To register please follow this link:<br><a href='https://www.$APP_DOMAIN/auth/register/token/$token'>https://www.$APP_DOMAIN/auth/register/token/$token</a><br>This invitation will expire in 3 days.<br><br>Kindest regards,<br>The $APP_NAME Team";
+
+if (email($_GET['email'], $subject, $body)) {
 	echo "Success! User invited" . PHP_EOL;
 } else {
 	echo "Error! Unable to send e-mail" . PHP_EOL;
