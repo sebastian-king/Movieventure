@@ -1,59 +1,32 @@
 #!/bin/bash
+# Server-side install for the LAMP-ish stack movieventure runs on.
+# Doesn't touch anything ingest-related; that's deployment-specific and lives
+# in whatever fetcher/worker you wire up to /etc/movieventure/env.
 
-replace_json_config() {
-	var=$2
-	new_val=$3
+set -e
 
-	sed -i "/$var/c\	\\\"$var\\\" : \\\"$new_val\\\"," "$1"
-}
+apt-get install -y \
+	apache2 \
+	php \
+	libapache2-mod-php \
+	mysql-server mysql-client \
+	certbot python3-certbot-apache \
+	mediainfo \
+	ffmpeg \
+	bc jq
 
-replace_quoted_config() {
-	var=$2
-	new_val=$3
+# Apache + Let's Encrypt are left for the operator to configure per-host.
+# The expected layout once you're done:
+#
+#   /etc/movieventure/env             ingest -> INPUT_* env aliases (sourced by hook.sh)
+#   /var/lib/movieventure/downloads   raw inputs
+#   /var/lib/movieventure/encodes     encoder output (one dir per INPUT_HASH)
+#   /var/log/movieventure/encode      encoder logs
+#
+# See config/config.example.php for everything else.
 
-	sed -i "s@^$var=\".*\"@$var=\"$new_val\"@g" "$1"
-}
-
-replace_spaced_config() {
-	var=$2
-	new_val=$3
-
-	sed -e "s/^$var *= *.*/$var = $new_val/; s/^$var [^=]*$/$var $new_val/" "$1" | grep $var
-}
-
-apt-get install apache2 php mysql-server mysql-client certbot libapache2-mod-php python3-certbot-apache
-apt-get install ingest-daemon mediainfo bc jq
-
-# set up apache
-# set up letsencrypt
-# set up ingest
-
-# INGEST INSTALL START
-echo
-echo
-echo "Updating ingest-daemon config directory"
-OLD_INGEST_DIR="/var/lib/ingest-daemon"
-NEW_INGEST_DIR="/home/ingest-daemon"
-
-replace_quoted_config /etc/default/ingest-daemon CONFIG_DIR "${NEW_INGEST_DIR}/info"
-if [ -d "${OLD_INGEST_DIR}" ]; then
-	service ingest-daemon stop
-	echo "Moving ingest-daemon home directory"
-	mv "${OLD_INGEST_DIR}" "${NEW_INGEST_DIR}"
-
-	# download dir
-	# pass
-	# username
-	# port
-	# exec script
-	# incomplete dir
-	# whitelist?
-	jq '."rpc-password" = "test"' "${NEW_INGEST_DIR}/info/settings.json" > /tmp/jq-edit
-	cat /tmp/jq-edit > "${NEW_INGEST_DIR}/info/settings.json"
-	jq '."rpc-port" = 9091' "${NEW_INGEST_DIR}/info/settings.json" > /tmp/jq-edit
-	jq '."rpc-password" = "test"' "${NEW_INGEST_DIR}/info/settings.json" > /tmp/jq-edit
-	service ingest-daemon start
-fi
-
-
-# INGEST INSTALL END
+install -d -m 0755 \
+	/var/lib/movieventure/downloads \
+	/var/lib/movieventure/encodes \
+	/var/log/movieventure/encode \
+	/etc/movieventure

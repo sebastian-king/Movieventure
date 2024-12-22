@@ -1,0 +1,44 @@
+# Configuration for mv-encode. Copy to encoder.toml beside the binary, or set
+# the MV_ENCODE_CONFIG env var to point at it. The hook script sets up the
+# INPUT_NAME / INPUT_HASH / INPUT_DIR env vars before invoking.
+
+ffmpeg_bin       = "/usr/bin/ffmpeg"
+input_root       = "/var/lib/movieventure/downloads"
+output_root      = "/var/lib/movieventure/encodes"
+logs_root        = "/var/log/movieventure/encode"
+hls_segment_secs = 4
+
+# NVENC preset and tune. p1..p7 trade quality for speed; p4 was what we
+# settled on, anything faster started showing block artefacts on dark scenes.
+nvenc_preset = "p4"
+nvenc_tune   = "hq"
+nvenc_rc     = "vbr"
+
+# ABR ladder. Order doesn't matter; the master playlist is sorted by bandwidth.
+[[ladder]]
+name        = "1080p"
+height      = 1080
+video_kbps  = 4500
+audio_kbps  = 128
+audio_chans = 2
+
+[[ladder]]
+name        = "720p"
+height      = 720
+video_kbps  = 2500
+audio_kbps  = 128
+audio_chans = 2
+
+[[ladder]]
+name        = "480p"
+height      = 480
+video_kbps  = 1100
+audio_kbps  = 96
+audio_chans = 2
+
+[[ladder]]
+name        = "360p"
+height      = 360
+video_kbps  = 650
+audio_kbps  = 64
+audio_chans = 1
