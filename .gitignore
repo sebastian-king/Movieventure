@@ -1,2 +1,20 @@
+# existing
 config.php
 ip2location/
+
+# new
+node_modules/
+*.log
+
+# generated encoder output (each item lands under <output_root>/<INPUT_HASH>/)
+encodes/
+hls/
+
+# build artefacts
+encode/nvenc/target/
+
+# OS / editor scratch
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
