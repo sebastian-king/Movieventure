@@ -30,7 +30,10 @@ return array(
 		'base_url'     => 'https://example.com',
 		'search_path'  => '/search/{query}/{page}/{per_page}/{category}',
 		'use_socks'    => false,
-		'socks_wrapper'=> 'socks_wrapper',
+		// command prefix to wrap shell calls when use_socks is true; any tool
+		// that forwards a child process's networking through a SOCKS proxy
+		// works (proxychains, redsocks, etc.)
+		'socks_wrapper'=> 'proxychains',
 		'categories'   => array(
 			'hd' => 207,
 			'sd' => 201,
